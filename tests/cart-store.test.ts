@@ -15,7 +15,10 @@ describe('cart store', () => {
     cart.add(12)
     cart.add(5)
 
-    expect(cart.lines).toEqual([{ id: 12, qty: 2 }, { id: 5, qty: 1 }])
+    expect(cart.lines).toEqual([
+      { id: 12, qty: 2 },
+      { id: 5, qty: 1 },
+    ])
     expect(cart.count).toBe(3)
   })
 

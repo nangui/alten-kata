@@ -20,7 +20,11 @@ describe('useProductCatalog', () => {
     let resolveSlow!: (response: Response) => void
     const fetchMock = vi
       .fn()
-      .mockReturnValueOnce(new Promise<Response>((resolve) => { resolveSlow = resolve }))
+      .mockReturnValueOnce(
+        new Promise<Response>((resolve) => {
+          resolveSlow = resolve
+        }),
+      )
       .mockResolvedValueOnce(Response.json(pageOf(3)))
     vi.stubGlobal('fetch', fetchMock)
 

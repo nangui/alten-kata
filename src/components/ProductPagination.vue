@@ -23,14 +23,16 @@ function onClick(event: MouseEvent, target: number) {
       class="pagination__link"
       :href="`?page=${page - 1}`"
       @click="onClick($event, page - 1)"
-    >← Précédent</a>
+      >← Précédent</a
+    >
     <span class="pagination__status" aria-current="page">Page {{ page }} sur {{ pageCount }}</span>
     <a
       v-if="page < pageCount"
       class="pagination__link"
       :href="`?page=${page + 1}`"
       @click="onClick($event, page + 1)"
-    >Suivant →</a>
+      >Suivant →</a
+    >
   </nav>
 </template>
 

@@ -3,7 +3,10 @@ import { MAX_LINES, parseCart, serializeCart } from '../src/cart/cookie'
 
 describe('cart cookie', () => {
   it('round-trips the cart lines', () => {
-    const lines = [{ id: 12, qty: 2 }, { id: 5, qty: 1 }]
+    const lines = [
+      { id: 12, qty: 2 },
+      { id: 5, qty: 1 },
+    ]
 
     expect(serializeCart(lines)).toBe('12:2,5:1')
     expect(parseCart(serializeCart(lines))).toEqual(lines)

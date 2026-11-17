@@ -9,7 +9,7 @@ export interface ProductSummary {
 
 export interface ProductPage {
   products: ProductSummary[]
-  total: number,
-  skip: number,
+  total: number
+  skip: number
   limit: number
 }

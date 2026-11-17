@@ -9,9 +9,9 @@ export interface AppData {
 export const APP_DATA_KEY: InjectionKey<AppData> = Symbol('app-data')
 
 export function useAppData(): AppData {
-   const data = inject(APP_DATA_KEY)
-   if (!data) {
+  const data = inject(APP_DATA_KEY)
+  if (!data) {
     throw new Error('useAppData() was called but no app data was provided')
-   }
-   return data
+  }
+  return data
 }

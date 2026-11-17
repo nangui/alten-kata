@@ -22,14 +22,19 @@ const formattedPrice = computed(() => props.product.price.toFixed(2).replace('.'
         height="300"
         :loading="priority ? 'eager' : 'lazy'"
         decoding="async"
-      >
+      />
     </div>
 
     <h2 class="product-card__title">{{ product.title }}</h2>
 
     <p class="product-card__rating" role="img" :aria-label="ratingLabel">
       <span class="product-card__stars" aria-hidden="true">★★★★★</span>
-      <span class="product-card__stars product-card__stars--filled" :style="{ width: ratingPercent }" aria-hidden="true">★★★★★</span>
+      <span
+        class="product-card__stars product-card__stars--filled"
+        :style="{ width: ratingPercent }"
+        aria-hidden="true"
+        >★★★★★</span
+      >
     </p>
 
     <p class="product-card__price">

@@ -9,7 +9,7 @@ const app = new Hono()
 
 const vite = await createViteServer({
   server: { middlewareMode: true },
-  appType: 'custom'
+  appType: 'custom',
 })
 
 app.get('*', async (c) => {
@@ -24,9 +24,7 @@ app.get('*', async (c) => {
     const dataScript = `<script type="application/json" id="__APP_DATA__">${stringify(payload)}</script>`
 
     return c.html(
-      page
-        .replace('<!--ssr-outlet-->', () => html)
-        .replace('<!--app-data-->', () => dataScript)
+      page.replace('<!--ssr-outlet-->', () => html).replace('<!--app-data-->', () => dataScript),
     )
   } catch (e) {
     const err = e as Error

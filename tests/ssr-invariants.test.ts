@@ -5,7 +5,14 @@ import { useCounterStore } from '../src/stores/counter'
 
 const productPage = {
   products: [
-    { id: 1, title: 'Essence Mascara', price: 9.99, rating: 2.56, thumbnail: 'https://cdn.example/1.webp', category: 'beauty' },
+    {
+      id: 1,
+      title: 'Essence Mascara',
+      price: 9.99,
+      rating: 2.56,
+      thumbnail: 'https://cdn.example/1.webp',
+      category: 'beauty',
+    },
   ],
   total: 194,
   skip: 0,

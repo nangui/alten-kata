@@ -17,6 +17,6 @@ export async function render(url: string, ctx: SSRContext = {}) {
   const html = await renderToString(app, ctx)
   return {
     html,
-    payload: { data, state: pinia.state.value }
+    payload: { data, state: pinia.state.value },
   }
 }

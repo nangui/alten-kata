@@ -13,18 +13,18 @@
 
 ## 2. Commands
 
-| Command | Purpose |
-| :--- | :--- |
-| `pnpm dev` | `node server.ts`: Vite in middleware mode, Hono as fallback |
-| `pnpm build:client` | `vite build --outDir dist/client --ssrManifest` |
-| `pnpm build:server` | `vite build --outDir dist/server --ssr src/entry-server.ts` |
-| `pnpm build` | `build:client` then `build:server` |
-| `pnpm typecheck` | `vue-tsc --noEmit` (`.ts` and `.vue`) |
-| `pnpm lint` | `eslint . --max-warnings 0` |
-| `pnpm test` | `vitest run` |
-| `pnpm format` | `prettier --write .` (formats every file) |
-| `pnpm format:check` | `prettier --check .` (fails on unformatted files) |
-| `pnpm verify` | `format:check` + `build` + `typecheck` + `lint` + `test`, in sequence |
+| Command             | Purpose                                                               |
+| :------------------ | :-------------------------------------------------------------------- |
+| `pnpm dev`          | `node server.ts`: Vite in middleware mode, Hono as fallback           |
+| `pnpm build:client` | `vite build --outDir dist/client --ssrManifest`                       |
+| `pnpm build:server` | `vite build --outDir dist/server --ssr src/entry-server.ts`           |
+| `pnpm build`        | `build:client` then `build:server`                                    |
+| `pnpm typecheck`    | `vue-tsc --noEmit` (`.ts` and `.vue`)                                 |
+| `pnpm lint`         | `eslint . --max-warnings 0`                                           |
+| `pnpm test`         | `vitest run`                                                          |
+| `pnpm format`       | `prettier --write .` (formats every file)                             |
+| `pnpm format:check` | `prettier --check .` (fails on unformatted files)                     |
+| `pnpm verify`       | `format:check` + `build` + `typecheck` + `lint` + `test`, in sequence |
 
 ## 3. Architecture boundaries
 
