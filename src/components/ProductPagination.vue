@@ -25,7 +25,7 @@ function onClick(event: MouseEvent, target: number) {
       @click="onClick($event, page - 1)"
       >← Précédent</a
     >
-    <span class="pagination__status" aria-current="page">Page {{ page }} sur {{ pageCount }}</span>
+    <span class="pagination__status">Page {{ page }} sur {{ pageCount }}</span>
     <a
       v-if="page < pageCount"
       class="pagination__link"

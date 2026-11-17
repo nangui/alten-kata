@@ -12,7 +12,9 @@ const emit = defineEmits<{
 }>()
 
 const ratingPercent = computed(() => `${(props.product.rating / 5) * 100}%`)
-const ratingLabel = computed(() => `Note : ${props.product.rating.toFixed(1)} sur 5`)
+const ratingLabel = computed(
+  () => `Note : ${props.product.rating.toFixed(1).replace('.', ',')} sur 5`,
+)
 const formattedPrice = computed(() => props.product.price.toFixed(2).replace('.', ','))
 const addLabel = computed(() => `Ajouter au panier : ${props.product.title}`)
 </script>
@@ -22,7 +24,7 @@ const addLabel = computed(() => `Ajouter au panier : ${props.product.title}`)
     <div class="product-card__media">
       <img
         :src="product.thumbnail"
-        :alt="product.title"
+        alt=""
         width="300"
         height="300"
         :loading="priority ? 'eager' : 'lazy'"

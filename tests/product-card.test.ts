@@ -32,12 +32,16 @@ describe('ProductCard', () => {
     expect(await renderCard(true)).toContain('loading="eager"')
   })
 
-  it('formats the price the same way on server and client', async () => {
+  it('formats the price in French with a superscript euro sign', async () => {
     expect(await renderCard()).toMatch(/9,99<span[^>]*>€<\/span>/)
   })
 
+  it('leaves the image alt empty because the heading already names the product', async () => {
+    expect(await renderCard()).toContain('alt=""')
+  })
+
   it('exposes the rating as text for screen readers', async () => {
-    expect(await renderCard()).toContain('aria-label="Note : 2.6 sur 5"')
+    expect(await renderCard()).toContain('aria-label="Note : 2,6 sur 5"')
   })
 
   it('names each add-to-cart button after its product', async () => {

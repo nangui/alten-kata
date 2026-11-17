@@ -12,6 +12,7 @@ const cart = useCartStore()
 
 const totalPages = computed(() => pageCount(productPage.value.total))
 const listTop = useTemplateRef<HTMLElement>('listTop')
+const listStatus = useTemplateRef<HTMLElement>('listStatus')
 
 const EAGER_IMAGES = 4
 
@@ -20,11 +21,24 @@ async function navigate(target: number) {
   if (!loaded) return
 
   history.pushState(null, '', `?page=${target}`)
-  listTop.value?.scrollIntoView({ block: 'start' })
+  showListTop()
 }
 
-function onPopState() {
-  loadPage(parsePage(new URLSearchParams(location.search).get('page')))
+function showListTop() {
+  listTop.value?.scrollIntoView({ block: 'start' })
+  listStatus.value?.focus({ preventScroll: true })
+}
+
+async function onPopState() {
+  const target = parsePage(new URLSearchParams(location.search).get('page'))
+  if (target === page.value) return
+
+  const loaded = await loadPage(target)
+  if (loaded) {
+    showListTop()
+  } else {
+    history.replaceState(null, '', `?page=${page.value}`)
+  }
 }
 
 onMounted(() => window.addEventListener('popstate', onPopState))
@@ -33,8 +47,8 @@ onBeforeUnmount(() => window.removeEventListener('popstate', onPopState))
 
 <template>
   <section ref="listTop" class="product-list">
-    <p class="product-count">
-      {{ productPage.products.length }} produits sur {{ productPage.total }}
+    <p ref="listStatus" class="product-count" tabindex="-1">
+      Page {{ page }} : {{ productPage.products.length }} produits sur {{ productPage.total }}
     </p>
 
     <p v-if="status === 'error'" class="product-list__error" role="alert">
@@ -69,6 +83,10 @@ onBeforeUnmount(() => window.removeEventListener('popstate', onPopState))
   margin: 1.5rem 0 1rem;
   color: #6b7280;
   font-size: 0.875rem;
+}
+
+.product-count:focus {
+  outline: none;
 }
 
 .product-list__error {
