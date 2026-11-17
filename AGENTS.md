@@ -30,9 +30,9 @@
 
 - `server.ts`: HTTP adapter only (Hono + Vite middlewares). Reads the request, calls `render`, writes the response.
 - `src/main.ts`: `createApp()` factory, returns `{ app, pinia }`.
-- `src/entry-server.ts`: exports `render(url, ctx)`. **It knows nothing about any HTTP server**: no `Request`, no Hono context. Hono is just an adapter that could be replaced.
+- `src/entry-server.ts`: exports `render(url, cartCookie)`. **It knows nothing about any HTTP server**: no `Request`, no Hono context. Hono is just an adapter that could be replaced.
 - `src/entry-client.ts`: restores state from the payload, then hydrates.
-- `src/api/`: typed DummyJSON client and types. `src/stores/`: Pinia stores. `src/components/`, `src/composables/`: UI.
+- `src/api/`: typed DummyJSON client and types. `src/cart/`: cart cookie codec, dependency-free so the server can reuse it. `src/stores/`: Pinia stores. `src/components/`, `src/composables/`: UI.
 
 ## 4. SSR invariants (non-negotiable)
 

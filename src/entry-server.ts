@@ -1,19 +1,21 @@
 import { renderToString, type SSRContext } from 'vue/server-renderer'
-import { parsePage } from './api/pagination'
 import { createApp } from './main'
-import { useCounterStore } from './stores/counter'
 import { fetchProducts } from './api/client'
+import { parsePage } from './api/pagination'
+import { parseCart } from './cart/cookie'
+import { useCartStore } from './stores/cart'
 import { APP_DATA_KEY, type AppData } from './composables/useAppData'
 
-export async function render(url: string, ctx: SSRContext = {}) {
+export async function render(url: string, cartCookie?: string) {
   const { app, pinia } = createApp()
 
   const page = parsePage(new URL(url, 'http://localhost').searchParams.get('page'))
   const data: AppData = { page, productPage: await fetchProducts(page) }
   app.provide(APP_DATA_KEY, data)
 
-  useCounterStore(pinia).count = 10
+  useCartStore(pinia).lines = parseCart(cartCookie)
 
+  const ctx: SSRContext = {}
   const html = await renderToString(app, ctx)
   return {
     html,

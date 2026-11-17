@@ -3,6 +3,7 @@ import { createServer as createViteServer } from 'vite'
 import { Hono } from 'hono'
 import { stringify } from 'devalue'
 import { getRequestListener } from '@hono/node-server'
+import { getCookie } from 'hono/cookie'
 import { readFile } from 'node:fs/promises'
 
 const app = new Hono()
@@ -12,7 +13,7 @@ const vite = await createViteServer({
   appType: 'custom',
 })
 
-app.get('*', async (c) => {
+app.get('/', async (c) => {
   const { pathname, search } = new URL(c.req.url)
   const url = pathname + search
   try {
@@ -20,7 +21,7 @@ app.get('*', async (c) => {
     const page = await vite.transformIndexHtml(url, template)
 
     const { render } = await vite.ssrLoadModule('/src/entry-server.ts')
-    const { html, payload } = await render(url, {})
+    const { html, payload } = await render(url, getCookie(c, 'cart'))
     const dataScript = `<script type="application/json" id="__APP_DATA__">${stringify(payload)}</script>`
 
     return c.html(

@@ -1,7 +1,7 @@
 import { afterEach, describe, it, expect, vi } from 'vitest'
 import { createApp } from '../src/main'
 import { render } from '../src/entry-server'
-import { useCounterStore } from '../src/stores/counter'
+import { useCartStore } from '../src/stores/cart'
 
 const productPage = {
   products: [
@@ -28,10 +28,10 @@ describe('SSR invariants', () => {
     const a = createApp()
     const b = createApp()
 
-    useCounterStore(a.pinia).increment()
+    useCartStore(a.pinia).add(1)
 
     expect(a.pinia).not.toBe(b.pinia)
-    expect(useCounterStore(b.pinia).count).toBe(0)
+    expect(useCartStore(b.pinia).count).toBe(0)
   })
 
   it('render() returns the HTML and a { data, state } payload', async () => {
@@ -39,10 +39,9 @@ describe('SSR invariants', () => {
 
     const { html, payload } = await render('/')
 
-    expect(html).toContain('Clics : 10')
     expect(html).toContain('Essence Mascara')
     expect(payload.data).toEqual({ page: 1, productPage })
-    expect(payload.state.counter).toEqual({ count: 10 })
+    expect(payload.state.cart).toEqual({ lines: [] })
   })
 
   it('render() reads the page from the URL so any page can be server-rendered', async () => {
@@ -53,5 +52,19 @@ describe('SSR invariants', () => {
 
     expect(new URL(fetchMock.mock.calls[0][0]).searchParams.get('skip')).toBe('30')
     expect(payload.data.page).toBe(2)
+  })
+
+  it('render() reads the cart cookie so the first paint shows the right count', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json(productPage)))
+
+    const { html, payload } = await render('/', '12:2,5:1')
+
+    expect(html).toMatch(/<span class="cart-indicator__count"[^>]*>3<\/span>/)
+    expect(payload.state.cart).toEqual({
+      lines: [
+        { id: 12, qty: 2 },
+        { id: 5, qty: 1 },
+      ],
+    })
   })
 })
