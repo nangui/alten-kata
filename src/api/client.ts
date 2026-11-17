@@ -5,7 +5,7 @@ const PRODUCT_FIELDS = 'id,title,price,rating,thumbnail,category'
 
 export const PAGE_SIZE = 30
 
- export async function fetchProducts(page = 1): Promise<ProductPage> {
+export async function fetchProducts(page = 1): Promise<ProductPage> {
   const params = new URLSearchParams({
     limit: String(PAGE_SIZE),
     skip: String((page - 1) * PAGE_SIZE),
@@ -18,4 +18,4 @@ export const PAGE_SIZE = 30
   }
 
   return (await response.json()) as ProductPage
- }
+}
