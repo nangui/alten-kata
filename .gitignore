@@ -1,0 +1,4 @@
+node_modules
+dist
+.claude/settings.local.json
+guide-agent-kata-eshop.md
