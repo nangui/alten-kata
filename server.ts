@@ -127,6 +127,8 @@ app.get('/', async (c) => {
     return c.html(
       page.replace('<!--ssr-outlet-->', () => html).replace('<!--app-data-->', () => dataScript),
       status,
+      // The HTML embeds this visitor's cart: no shared cache (CDN, proxy) may store it.
+      { 'Cache-Control': 'private, no-cache' },
     )
   } catch (e) {
     const err = e as Error
