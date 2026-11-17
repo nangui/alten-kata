@@ -74,4 +74,61 @@ describe('cart store', () => {
 
     expect(fetchMock.mock.calls.map(([, init]) => init.body)).toEqual(['12:1', '12:2'])
   })
+
+  it('coalesces clicks made during a save into a single follow-up save', async () => {
+    let releaseFirst!: () => void
+    const fetchMock = vi
+      .fn()
+      .mockImplementationOnce(
+        () => new Promise<Response>((resolve) => (releaseFirst = () => resolve(noContent()))),
+      )
+      .mockImplementation(async () => noContent())
+    vi.stubGlobal('fetch', fetchMock)
+
+    const cart = useCartStore()
+    cart.add(12)
+    cart.add(12)
+    const last = cart.add(12)
+
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1))
+    expect(cart.status).toBe('saving')
+    releaseFirst()
+    await last
+
+    expect(fetchMock.mock.calls.map(([, init]) => init.body)).toEqual(['12:1', '12:3'])
+    expect(cart.status).toBe('idle')
+  })
+
+  it('rolls back to the last saved cart when a save fails', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(null, { status: 503 })),
+    )
+    const cart = useCartStore()
+    cart.lines = [{ id: 5, qty: 1 }]
+
+    await cart.add(12)
+
+    expect(cart.lines).toEqual([{ id: 5, qty: 1 }])
+    expect(cart.count).toBe(1)
+    expect(cart.status).toBe('error')
+  })
+
+  it('keeps the rejected change so the shopper can retry it', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockImplementationOnce(async () => new Response(null, { status: 503 }))
+      .mockImplementation(async () => noContent())
+    vi.stubGlobal('fetch', fetchMock)
+    const cart = useCartStore()
+
+    await cart.add(12)
+    expect(cart.lines).toEqual([])
+
+    await cart.retry()
+
+    expect(cart.lines).toEqual([{ id: 12, qty: 1 }])
+    expect(cart.status).toBe('idle')
+    expect(fetchMock.mock.calls.at(-1)?.[1]?.body).toBe('12:1')
+  })
 })

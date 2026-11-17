@@ -41,7 +41,7 @@ describe('SSR invariants', () => {
 
     expect(html).toContain('Essence Mascara')
     expect(payload.data).toEqual({ page: 1, productPage })
-    expect(payload.state.cart).toEqual({ lines: [] })
+    expect(payload.state.cart).toEqual({ lines: [], status: 'idle' })
   })
 
   it('render() reads the page from the URL so any page can be server-rendered', async () => {
@@ -65,6 +65,7 @@ describe('SSR invariants', () => {
         { id: 12, qty: 2 },
         { id: 5, qty: 1 },
       ],
+      status: 'idle',
     })
   })
 })

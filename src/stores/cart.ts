@@ -3,31 +3,86 @@ import { computed, ref } from 'vue'
 import { saveCart } from '../api/cart'
 import { MAX_LINES, MAX_QTY, type CartLine } from '../cart/cookie'
 
+export type CartStatus = 'idle' | 'saving' | 'error'
+
+function copyLines(lines: CartLine[]): CartLine[] {
+  return lines.map((line) => ({ ...line }))
+}
+
 export const useCartStore = defineStore('cart', () => {
   const lines = ref<CartLine[]>([])
+  const status = ref<CartStatus>('idle')
 
   const count = computed(() => lines.value.reduce((total, line) => total + line.qty, 0))
 
-  let saveQueue: Promise<void> = Promise.resolve()
+  let confirmed: CartLine[] | null = null
+  let rejected: CartLine[] | null = null
+  let hasUnsavedChanges = false
+  let saving: Promise<void> | null = null
 
-  function persist(): Promise<void> {
-    const snapshot = lines.value.map((line) => ({ ...line }))
-    const save = saveQueue.then(() => saveCart(snapshot))
-    saveQueue = save.catch(() => {})
-    return save
+  async function saveUntilSettled(): Promise<void> {
+    status.value = 'saving'
+
+    while (hasUnsavedChanges) {
+      hasUnsavedChanges = false
+      const snapshot = copyLines(lines.value)
+
+      try {
+        await saveCart(snapshot)
+        confirmed = snapshot
+      } catch {
+        rejected = copyLines(lines.value)
+        lines.value = confirmed ?? []
+        confirmed = null
+        hasUnsavedChanges = false
+        status.value = 'error'
+        return
+      }
+    }
+
+    confirmed = null
+    status.value = 'idle'
+  }
+
+  function change(mutate: () => void): Promise<void> {
+    confirmed ??= copyLines(lines.value)
+    mutate()
+    hasUnsavedChanges = true
+
+    saving ??= saveUntilSettled().finally(() => {
+      saving = null
+    })
+    return saving
   }
 
   function add(id: number): Promise<void> {
-    const line = lines.value.find((item) => item.id === id)
+    rejected = null
 
-    if (line) {
-      line.qty = Math.min(line.qty + 1, MAX_QTY)
-    } else if (lines.value.length < MAX_LINES) {
-      lines.value.push({ id, qty: 1 })
-    }
+    return change(() => {
+      const line = lines.value.find((item) => item.id === id)
 
-    return persist()
+      if (line) {
+        line.qty = Math.min(line.qty + 1, MAX_QTY)
+      } else if (lines.value.length < MAX_LINES) {
+        lines.value.push({ id, qty: 1 })
+      }
+    })
   }
 
-  return { lines, count, add }
+  function retry(): Promise<void> {
+    const attempt = rejected
+    if (!attempt) return Promise.resolve()
+
+    rejected = null
+    return change(() => {
+      lines.value = attempt
+    })
+  }
+
+  function dismissError() {
+    rejected = null
+    if (status.value === 'error') status.value = 'idle'
+  }
+
+  return { lines, status, count, add, retry, dismissError }
 })

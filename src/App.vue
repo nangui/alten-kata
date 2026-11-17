@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import CartIndicator from './components/CartIndicator.vue'
+import CartToast from './components/CartToast.vue'
 import ProductList from './components/ProductList.vue'
 </script>
 
@@ -14,6 +15,7 @@ import ProductList from './components/ProductList.vue'
     <h1 class="page__title">Catalogue</h1>
     <ProductList />
   </main>
+  <CartToast />
 </template>
 
 <style scoped>
