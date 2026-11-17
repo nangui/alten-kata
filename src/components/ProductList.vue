@@ -5,8 +5,10 @@ import ProductPagination from './ProductPagination.vue'
 import { pageCount, parsePage } from '../api/pagination'
 import { useAppData } from '../composables/useAppData'
 import { useProductCatalog } from '../composables/useProductCatalog'
+import { useCartStore } from '../stores/cart'
 
 const { page, productPage, status, loadPage } = useProductCatalog(useAppData())
+const cart = useCartStore()
 
 const totalPages = computed(() => pageCount(productPage.value.total))
 const listTop = useTemplateRef<HTMLElement>('listTop')
@@ -45,7 +47,7 @@ onBeforeUnmount(() => window.removeEventListener('popstate', onPopState))
 
     <ul class="product-grid" :aria-busy="status === 'loading'">
       <li v-for="(product, index) in productPage.products" :key="product.id">
-        <ProductCard :product="product" :priority="index < EAGER_IMAGES" />
+        <ProductCard :product="product" :priority="index < EAGER_IMAGES" @add="cart.add" />
       </li>
     </ul>
 

@@ -7,9 +7,14 @@ const props = defineProps<{
   priority?: boolean
 }>()
 
+const emit = defineEmits<{
+  add: [id: number]
+}>()
+
 const ratingPercent = computed(() => `${(props.product.rating / 5) * 100}%`)
 const ratingLabel = computed(() => `Note : ${props.product.rating.toFixed(1)} sur 5`)
 const formattedPrice = computed(() => props.product.price.toFixed(2).replace('.', ','))
+const addLabel = computed(() => `Ajouter au panier : ${props.product.title}`)
 </script>
 
 <template>
@@ -40,6 +45,14 @@ const formattedPrice = computed(() => props.product.price.toFixed(2).replace('.'
     <p class="product-card__price">
       {{ formattedPrice }}<span class="product-card__currency">€</span>
     </p>
+    <button
+      type="button"
+      class="product-card__add"
+      :aria-label="addLabel"
+      @click="emit('add', product.id)"
+    >
+      Ajouter au panier
+    </button>
   </article>
 </template>
 
@@ -55,6 +68,9 @@ const formattedPrice = computed(() => props.product.price.toFixed(2).replace('.'
   padding: 1rem;
   border-radius: 12px;
   background: #f3f4f6;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
 }
 
 .product-card__media img {
@@ -107,5 +123,55 @@ const formattedPrice = computed(() => props.product.price.toFixed(2).replace('.'
   margin-left: 0.2em;
   font-size: 0.6em;
   vertical-align: super;
+}
+
+.product-card__add {
+  margin-top: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #111827;
+  border-radius: 999px;
+  color: #111827;
+  background: transparent;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.product-card__add:hover {
+  color: #ffffff;
+  background: #111827;
+}
+
+.product-card__add:focus-visible {
+  outline: 2px solid #1e3a8a;
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .product-card:hover .product-card__media {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -12px rgb(17 24 39 / 0.25);
+  }
+}
+
+.product-card:focus-within .product-card__media {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -12px rgb(17 24 39 / 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-card__media,
+  .product-card__add {
+    transition: none;
+  }
+
+  .product-card:hover .product-card__media,
+  .product-card:focus-within .product-card__media {
+    transform: none;
+  }
 }
 </style>

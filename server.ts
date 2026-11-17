@@ -3,14 +3,35 @@ import { createServer as createViteServer } from 'vite'
 import { Hono } from 'hono'
 import { stringify } from 'devalue'
 import { getRequestListener } from '@hono/node-server'
-import { getCookie } from 'hono/cookie'
+import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
+import { bodyLimit } from 'hono/body-limit'
 import { readFile } from 'node:fs/promises'
+import { parseCart, serializeCart } from './src/cart/cookie.ts'
+
+const CART_MAX_AGE = 60 * 60 * 24 * 30
 
 const app = new Hono()
 
 const vite = await createViteServer({
   server: { middlewareMode: true },
   appType: 'custom',
+})
+
+app.put('/api/cart', bodyLimit({ maxSize: 1024 }), async (c) => {
+  const value = serializeCart(parseCart(await c.req.text()))
+
+  if (value === '') {
+    deleteCookie(c, 'cart', { path: '/' })
+  } else {
+    setCookie(c, 'cart', value, {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'Lax',
+      maxAge: CART_MAX_AGE,
+    })
+  }
+
+  return c.body(null, 204)
 })
 
 app.get('/', async (c) => {

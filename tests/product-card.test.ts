@@ -39,4 +39,8 @@ describe('ProductCard', () => {
   it('exposes the rating as text for screen readers', async () => {
     expect(await renderCard()).toContain('aria-label="Note : 2.6 sur 5"')
   })
+
+  it('names each add-to-cart button after its product', async () => {
+    expect(await renderCard()).toContain('aria-label="Ajouter au panier : Essence Mascara"')
+  })
 })

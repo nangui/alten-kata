@@ -28,7 +28,7 @@ describe('SSR invariants', () => {
     const a = createApp()
     const b = createApp()
 
-    useCartStore(a.pinia).add(1)
+    useCartStore(a.pinia).lines = [{ id: 1, qty: 1 }]
 
     expect(a.pinia).not.toBe(b.pinia)
     expect(useCartStore(b.pinia).count).toBe(0)
