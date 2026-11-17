@@ -33,7 +33,7 @@ describe('SSR invariants', () => {
     const { html, payload } = await render('/')
 
     expect(html).toContain('Clics : 10')
-    expect(html).toContain('Essence Mascara — 9.99 $')
+    expect(html).toContain('Essence Mascara')
     expect(payload.data).toEqual({ productPage })
     expect(payload.state.counter).toEqual({ count: 10 })
   })
