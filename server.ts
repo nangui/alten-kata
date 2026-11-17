@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { Hono } from 'hono'
 import { bodyLimit } from 'hono/body-limit'
 import { compress } from 'hono/compress'
+import { secureHeaders } from 'hono/secure-headers'
 import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
 import { getRequestListener } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
@@ -60,6 +61,25 @@ async function loadPage(url: string): Promise<{ template: string; render: Render
   const { render } = await vite.ssrLoadModule('/src/entry-server.ts')
   return { template: await vite.transformIndexHtml(url, template), render }
 }
+
+app.use(
+  secureHeaders({
+    contentSecurityPolicy: isProduction
+      ? {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'"],
+          styleSrcAttr: ["'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:', 'https://cdn.dummyjson.com'],
+          connectSrc: ["'self'", 'https://dummyjson.com'],
+          objectSrc: ["'none'"],
+          baseUri: ["'self'"],
+          formAction: ["'self'"],
+          frameAncestors: ["'none'"],
+        }
+      : undefined,
+  }),
+)
 
 if (isProduction) {
   app.use(compress())
