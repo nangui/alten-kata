@@ -2,6 +2,7 @@ import { inject, type InjectionKey } from 'vue'
 import type { ProductPage } from '../api/types'
 
 export interface AppData {
+  page: number
   productPage: ProductPage
 }
 

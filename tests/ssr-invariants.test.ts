@@ -34,7 +34,17 @@ describe('SSR invariants', () => {
 
     expect(html).toContain('Clics : 10')
     expect(html).toContain('Essence Mascara')
-    expect(payload.data).toEqual({ productPage })
+    expect(payload.data).toEqual({ page: 1, productPage })
     expect(payload.state.counter).toEqual({ count: 10 })
+  })
+
+  it('render() reads the page from the URL so any page can be server-rendered', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(Response.json(productPage))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { payload } = await render('/?page=2')
+
+    expect(new URL(fetchMock.mock.calls[0][0]).searchParams.get('skip')).toBe('30')
+    expect(payload.data.page).toBe(2)
   })
 })

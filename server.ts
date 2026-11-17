@@ -13,7 +13,8 @@ const vite = await createViteServer({
 })
 
 app.get('*', async (c) => {
-  const url = c.req.path
+  const { pathname, search } = new URL(c.req.url)
+  const url = pathname + search
   try {
     const template = await readFile(new URL('./index.html', import.meta.url), 'utf-8')
     const page = await vite.transformIndexHtml(url, template)
