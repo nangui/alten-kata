@@ -1,14 +1,18 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import CartDrawer from './components/CartDrawer.vue'
 import CartIndicator from './components/CartIndicator.vue'
 import CartToast from './components/CartToast.vue'
 import ProductList from './components/ProductList.vue'
+
+const cartOpen = ref(false)
 </script>
 
 <template>
   <header class="site-header">
     <div class="site-header__inner">
       <a class="site-header__brand" href="/">Kata E-shop</a>
-      <CartIndicator />
+      <CartIndicator @open="cartOpen = true" />
     </div>
   </header>
   <main class="page">
@@ -16,6 +20,7 @@ import ProductList from './components/ProductList.vue'
     <ProductList />
   </main>
   <CartToast />
+  <CartDrawer :open="cartOpen" @close="cartOpen = false" />
 </template>
 
 <style scoped>

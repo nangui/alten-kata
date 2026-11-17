@@ -69,6 +69,24 @@ export const useCartStore = defineStore('cart', () => {
     })
   }
 
+  function setQuantity(id: number, qty: number): Promise<void> {
+    rejected = null
+
+    return change(() => {
+      if (qty <= 0) {
+        lines.value = lines.value.filter((line) => line.id !== id)
+        return
+      }
+
+      const line = lines.value.find((item) => item.id === id)
+      if (line) line.qty = Math.min(qty, MAX_QTY)
+    })
+  }
+
+  function remove(id: number): Promise<void> {
+    return setQuantity(id, 0)
+  }
+
   function retry(): Promise<void> {
     const attempt = rejected
     if (!attempt) return Promise.resolve()
@@ -84,5 +102,5 @@ export const useCartStore = defineStore('cart', () => {
     if (status.value === 'error') status.value = 'idle'
   }
 
-  return { lines, status, count, add, retry, dismissError }
+  return { lines, status, count, add, setQuantity, remove, retry, dismissError }
 })

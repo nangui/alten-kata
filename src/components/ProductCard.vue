@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ProductSummary } from '../api/types'
+import { formatPrice } from '../utils/price'
 
 const props = defineProps<{
   product: ProductSummary
@@ -15,7 +16,7 @@ const ratingPercent = computed(() => `${(props.product.rating / 5) * 100}%`)
 const ratingLabel = computed(
   () => `Note : ${props.product.rating.toFixed(1).replace('.', ',')} sur 5`,
 )
-const formattedPrice = computed(() => props.product.price.toFixed(2).replace('.', ','))
+const formattedPrice = computed(() => formatPrice(props.product.price))
 const addLabel = computed(() => `Ajouter au panier : ${props.product.title}`)
 </script>
 

@@ -7,6 +7,8 @@ export interface ProductSummary {
   category: string
 }
 
+export type CartProduct = Pick<ProductSummary, 'id' | 'title' | 'price' | 'thumbnail'>
+
 export interface ProductPage {
   products: ProductSummary[]
   total: number

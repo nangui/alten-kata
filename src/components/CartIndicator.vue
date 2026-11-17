@@ -2,17 +2,23 @@
 import { computed } from 'vue'
 import { useCartStore } from '../stores/cart'
 
+const emit = defineEmits<{
+  open: []
+}>()
+
 const cart = useCartStore()
 
 const itemsLabel = computed(() => `${cart.count} ${cart.count > 1 ? 'articles' : 'article'}`)
 </script>
 
 <template>
-  <p class="cart-indicator" aria-live="polite">
-    Panier
-    <span class="cart-indicator__count" aria-hidden="true">{{ cart.count }}</span>
-    <span class="visually-hidden">{{ itemsLabel }}</span>
-  </p>
+  <div aria-live="polite">
+    <button type="button" class="cart-indicator" aria-haspopup="dialog" @click="emit('open')">
+      Panier
+      <span class="cart-indicator__count" aria-hidden="true">{{ cart.count }}</span>
+      <span class="visually-hidden">{{ itemsLabel }}</span>
+    </button>
+  </div>
 </template>
 
 <style scoped>
@@ -20,8 +26,23 @@ const itemsLabel = computed(() => `${cart.count} ${cart.count > 1 ? 'articles' :
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  margin: 0;
+  padding: 0.375rem 0.5rem 0.375rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: inherit;
+  background: transparent;
+  font: inherit;
   font-weight: 500;
+  cursor: pointer;
+}
+
+.cart-indicator:hover {
+  border-color: #d1d5db;
+}
+
+.cart-indicator:focus-visible {
+  outline: 2px solid #1e3a8a;
+  outline-offset: 2px;
 }
 
 .cart-indicator__count {

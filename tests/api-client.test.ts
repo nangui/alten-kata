@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fetchProducts, PAGE_SIZE } from '../src/api/client'
+import { fetchCartProducts, fetchProducts, PAGE_SIZE } from '../src/api/client'
 
 const emptyPage = { products: [], total: 194, skip: 0, limit: PAGE_SIZE }
 
@@ -34,5 +34,21 @@ describe('fetchProducts', () => {
     await fetchProducts()
 
     expect(fetchMock.mock.calls[0][1].signal).toBeInstanceOf(AbortSignal)
+  })
+
+  it('fetches cart product details and skips products that no longer exist', async () => {
+    const fetchMock = vi.fn(async (url: string) =>
+      url.includes('/products/404')
+        ? new Response(null, { status: 404 })
+        : Response.json({ id: 1, title: 'Mascara', price: 9.99, thumbnail: 't.webp' }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    const products = await fetchCartProducts([1, 404])
+
+    expect(products).toEqual([{ id: 1, title: 'Mascara', price: 9.99, thumbnail: 't.webp' }])
+    expect(new URL(fetchMock.mock.calls[0][0]).searchParams.get('select')).toBe(
+      'id,title,price,thumbnail',
+    )
   })
 })

@@ -131,4 +131,31 @@ describe('cart store', () => {
     expect(cart.status).toBe('idle')
     expect(fetchMock.mock.calls.at(-1)?.[1]?.body).toBe('12:1')
   })
+
+  it('removes a line when its quantity drops to zero', async () => {
+    const cart = useCartStore()
+    cart.lines = [
+      { id: 12, qty: 1 },
+      { id: 5, qty: 2 },
+    ]
+
+    await cart.setQuantity(12, 0)
+    await cart.setQuantity(5, 1)
+
+    expect(cart.lines).toEqual([{ id: 5, qty: 1 }])
+  })
+
+  it('rolls back a removal that fails to save', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(null, { status: 503 })),
+    )
+    const cart = useCartStore()
+    cart.lines = [{ id: 12, qty: 2 }]
+
+    await cart.remove(12)
+
+    expect(cart.lines).toEqual([{ id: 12, qty: 2 }])
+    expect(cart.status).toBe('error')
+  })
 })
