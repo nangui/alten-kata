@@ -5,7 +5,8 @@
 - Package manager: pnpm 10.
 - Vue 3.5 + Pinia, TypeScript 6.0, Vite 8 (SSR mode), Hono 4 via `@hono/node-server` 2, `devalue` for payload serialization.
 - TypeScript stays on 6.0: TS 7 has no JS API yet, which `vue-tsc` and `typescript-eslint` require.
-- Tooling: `vue-tsc` (typecheck), ESLint + `typescript-eslint` + `eslint-plugin-vue` (lint), Vitest (test).
+- Tooling: `vue-tsc` (typecheck), ESLint + `typescript-eslint` + `eslint-plugin-vue` (lint), Prettier (format), Vitest (test).
+- ESLint checks correctness only; Prettier owns formatting. Never add stylistic ESLint rules.
 - `server.ts` runs with Node's native type stripping (Node >= 23.6): types are erased, never checked at runtime.
 - Product API: DummyJSON.
 - **No meta-framework** (no Nuxt, Next, Vike, Astro, `vite-plugin-ssr`…): the kata forbids them, so SSR is wired by hand on top of Vite's SSR API.
@@ -21,7 +22,9 @@
 | `pnpm typecheck` | `vue-tsc --noEmit` (`.ts` and `.vue`) |
 | `pnpm lint` | `eslint . --max-warnings 0` |
 | `pnpm test` | `vitest run` |
-| `pnpm verify` | `build` + `typecheck` + `lint` + `test`, in sequence |
+| `pnpm format` | `prettier --write .` (formats every file) |
+| `pnpm format:check` | `prettier --check .` (fails on unformatted files) |
+| `pnpm verify` | `format:check` + `build` + `typecheck` + `lint` + `test`, in sequence |
 
 ## 3. Architecture boundaries
 
