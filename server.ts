@@ -1,12 +1,19 @@
 import { createServer as createHttp } from 'node:http'
-import { createServer as createViteServer } from 'vite'
-import { Hono } from 'hono'
-import { stringify } from 'devalue'
-import { getRequestListener } from '@hono/node-server'
-import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
-import { bodyLimit } from 'hono/body-limit'
 import { readFile } from 'node:fs/promises'
+import { Hono } from 'hono'
+import { bodyLimit } from 'hono/body-limit'
+import { compress } from 'hono/compress'
+import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
+import { getRequestListener } from '@hono/node-server'
+import { serveStatic } from '@hono/node-server/serve-static'
+import { stringify } from 'devalue'
 import { parseCart, serializeCart } from './src/cart/cookie.ts'
+
+type Render = typeof import('./src/entry-server.ts').render
+
+const isProduction = process.env.NODE_ENV === 'production'
+const port = Number(process.env.PORT ?? 5173)
+const SERVER_ENTRY = './dist/server/entry-server.js'
 
 const CART_MAX_AGE = 60 * 60 * 24 * 30
 
@@ -27,10 +34,49 @@ const ERROR_PAGE = `<!doctype html>
 
 const app = new Hono()
 
-const vite = await createViteServer({
-  server: { middlewareMode: true },
-  appType: 'custom',
-})
+const vite = isProduction
+  ? undefined
+  : await (
+      await import('vite')
+    ).createServer({
+      server: { middlewareMode: true },
+      appType: 'custom',
+    })
+
+const productionTemplate = isProduction
+  ? await readFile(new URL('./dist/client/index.html', import.meta.url), 'utf-8')
+  : ''
+
+const productionRender: Render | undefined = isProduction
+  ? ((await import(SERVER_ENTRY)) as { render: Render }).render
+  : undefined
+
+async function loadPage(url: string): Promise<{ template: string; render: Render }> {
+  if (!vite) {
+    return { template: productionTemplate, render: productionRender! }
+  }
+
+  const template = await readFile(new URL('./index.html', import.meta.url), 'utf-8')
+  const { render } = await vite.ssrLoadModule('/src/entry-server.ts')
+  return { template: await vite.transformIndexHtml(url, template), render }
+}
+
+if (isProduction) {
+  app.use(compress())
+  app.use(
+    '/assets/*',
+    serveStatic({
+      root: './dist/client',
+      onFound: (_path, c) => {
+        c.header('Cache-Control', 'public, max-age=31536000, immutable')
+      },
+    }),
+  )
+}
+
+function isHttps(requestUrl: string, forwardedProto: string | undefined): boolean {
+  return forwardedProto === 'https' || new URL(requestUrl).protocol === 'https:'
+}
 
 app.put('/api/cart', bodyLimit({ maxSize: 1024 }), async (c) => {
   const value = serializeCart(parseCart(await c.req.text()))
@@ -43,6 +89,7 @@ app.put('/api/cart', bodyLimit({ maxSize: 1024 }), async (c) => {
       httpOnly: true,
       sameSite: 'Lax',
       maxAge: CART_MAX_AGE,
+      secure: isHttps(c.req.url, c.req.header('x-forwarded-proto')),
     })
   }
 
@@ -53,10 +100,7 @@ app.get('/', async (c) => {
   const { pathname, search } = new URL(c.req.url)
   const url = pathname + search
   try {
-    const template = await readFile(new URL('./index.html', import.meta.url), 'utf-8')
-    const page = await vite.transformIndexHtml(url, template)
-
-    const { render } = await vite.ssrLoadModule('/src/entry-server.ts')
+    const { template: page, render } = await loadPage(url)
     const { html, payload, status } = await render(url, getCookie(c, 'cart'))
     const dataScript = `<script type="application/json" id="__APP_DATA__">${stringify(payload)}</script>`
 
@@ -66,7 +110,7 @@ app.get('/', async (c) => {
     )
   } catch (e) {
     const err = e as Error
-    vite.ssrFixStacktrace(err)
+    vite?.ssrFixStacktrace(err)
     console.error(err)
     return c.html(ERROR_PAGE, 503, { 'Retry-After': '30' })
   }
@@ -75,5 +119,11 @@ app.get('/', async (c) => {
 const hono = getRequestListener(app.fetch)
 
 createHttp((req, res) => {
-  vite.middlewares(req, res, () => hono(req, res))
-}).listen(5173, () => console.log('http://localhost:5173'))
+  if (vite) {
+    vite.middlewares(req, res, () => hono(req, res))
+  } else {
+    hono(req, res)
+  }
+}).listen(port, () => {
+  console.log(`http://localhost:${port} (${isProduction ? 'production' : 'development'})`)
+})

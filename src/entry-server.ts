@@ -17,7 +17,7 @@ export async function render(url: string, cartCookie?: string) {
 
   const ctx: SSRContext = {}
   const html = await renderToString(app, ctx)
-  const status = page > pageCount(data.productPage.total) ? 404 : 200
+  const status: 200 | 404 = page > pageCount(data.productPage.total) ? 404 : 200
 
   return {
     html,
