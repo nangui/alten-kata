@@ -4,6 +4,7 @@ import { useCartStore } from '../stores/cart'
 
 const emit = defineEmits<{
   open: []
+  intent: []
 }>()
 
 const cart = useCartStore()
@@ -13,7 +14,14 @@ const itemsLabel = computed(() => `${cart.count} ${cart.count > 1 ? 'articles' :
 
 <template>
   <div aria-live="polite">
-    <button type="button" class="cart-indicator" aria-haspopup="dialog" @click="emit('open')">
+    <button
+      type="button"
+      class="cart-indicator"
+      aria-haspopup="dialog"
+      @click="emit('open')"
+      @pointerenter="emit('intent')"
+      @focus="emit('intent')"
+    >
       Panier
       <span class="cart-indicator__count" aria-hidden="true">{{ cart.count }}</span>
       <span class="visually-hidden">{{ itemsLabel }}</span>

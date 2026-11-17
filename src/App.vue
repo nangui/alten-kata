@@ -1,18 +1,26 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import CartDrawer from './components/CartDrawer.vue'
+import { defineAsyncComponent, ref } from 'vue'
 import CartIndicator from './components/CartIndicator.vue'
 import CartToast from './components/CartToast.vue'
 import ProductList from './components/ProductList.vue'
 
+const loadCartDrawer = () => import('./components/CartDrawer.vue')
+const CartDrawer = defineAsyncComponent(loadCartDrawer)
+
 const cartOpen = ref(false)
+const cartRequested = ref(false)
+
+function openCart() {
+  cartRequested.value = true
+  cartOpen.value = true
+}
 </script>
 
 <template>
   <header class="site-header">
     <div class="site-header__inner">
       <a class="site-header__brand" href="/">Kata E-shop</a>
-      <CartIndicator @open="cartOpen = true" />
+      <CartIndicator @open="openCart" @intent="loadCartDrawer" />
     </div>
   </header>
   <main class="page">
@@ -20,7 +28,7 @@ const cartOpen = ref(false)
     <ProductList />
   </main>
   <CartToast />
-  <CartDrawer :open="cartOpen" @close="cartOpen = false" />
+  <CartDrawer v-if="cartRequested" :open="cartOpen" @close="cartOpen = false" />
 </template>
 
 <style scoped>
