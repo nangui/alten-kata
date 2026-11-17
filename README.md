@@ -21,21 +21,21 @@ Then open http://localhost:5173.
 
 ## Scripts
 
-| Command             | Purpose                                                        |
-| :------------------ | :------------------------------------------------------------- |
-| `pnpm dev`          | Development server: Vite in middleware mode, Hono for SSR      |
-| `pnpm build`        | Client bundle with SSR manifest, then server bundle            |
-| `pnpm typecheck`    | `vue-tsc` on `.ts` and `.vue` files                            |
-| `pnpm lint`         | ESLint, zero warnings allowed                                  |
-| `pnpm format:check` | Prettier check                                                 |
-| `pnpm test`         | Vitest                                                         |
-| `pnpm verify`       | All of the above, in sequence: the gate before every commit    |
+| Command             | Purpose                                                     |
+| :------------------ | :---------------------------------------------------------- |
+| `pnpm dev`          | Development server: Vite in middleware mode, Hono for SSR   |
+| `pnpm build`        | Client bundle with SSR manifest, then server bundle         |
+| `pnpm typecheck`    | `vue-tsc` on `.ts` and `.vue` files                         |
+| `pnpm lint`         | ESLint, zero warnings allowed                               |
+| `pnpm format:check` | Prettier check                                              |
+| `pnpm test`         | Vitest                                                      |
+| `pnpm verify`       | All of the above, in sequence: the gate before every commit |
 
 ## Status
 
 - [x] SSR with hydration, state transferred with `devalue`, zero hydration warnings
 - [x] **US1, Product List Page:** server-rendered first page (image, name, price, rating), layout-stable images, URL-driven pagination with progressive
-enhancement
+      enhancement
 - [ ] **US2, Shopping cart:** cookie-persisted cart rendered on first paint ✔︎; add to cart, optimistic updates with rollback in progress
 - [ ] Bonus features
 - [ ] Final documentation: architecture, performance measurements, trade-offs
@@ -43,5 +43,6 @@ enhancement
 The interface is in French (`9,99 €`); code, commits and documentation are in English.
 
 Every line is true today:
+
 - I tested pnpm install then pnpm verify from a fresh clone of develop, and both pass.
 - The status doesn't claim anything that isn't done yet.
