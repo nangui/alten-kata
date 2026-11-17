@@ -54,6 +54,17 @@ describe('SSR invariants', () => {
     expect(payload.data.page).toBe(2)
   })
 
+  it('render() reports a 404 for a page beyond the catalogue', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(Response.json({ ...productPage, products: [] })),
+    )
+
+    const { status } = await render('/?page=99')
+
+    expect(status).toBe(404)
+  })
+
   it('render() reads the cart cookie so the first paint shows the right count', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json(productPage)))
 

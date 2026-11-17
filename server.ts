@@ -10,6 +10,21 @@ import { parseCart, serializeCart } from './src/cart/cookie.ts'
 
 const CART_MAX_AGE = 60 * 60 * 24 * 30
 
+const ERROR_PAGE = `<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kata E-shop</title>
+    <link rel="icon" href="data:," />
+  </head>
+  <body style="margin: 0; padding: 4rem 1rem; font-family: system-ui, sans-serif; color: #111827; text-align: center">
+    <h1 style="font-size: 1.5rem">Le catalogue est momentanément indisponible</h1>
+    <p>Nos produits n’ont pas pu être chargés. Réessayez dans quelques instants.</p>
+    <p><a href="/" style="color: #1e3a8a">Recharger la page</a></p>
+  </body>
+</html>`
+
 const app = new Hono()
 
 const vite = await createViteServer({
@@ -42,17 +57,18 @@ app.get('/', async (c) => {
     const page = await vite.transformIndexHtml(url, template)
 
     const { render } = await vite.ssrLoadModule('/src/entry-server.ts')
-    const { html, payload } = await render(url, getCookie(c, 'cart'))
+    const { html, payload, status } = await render(url, getCookie(c, 'cart'))
     const dataScript = `<script type="application/json" id="__APP_DATA__">${stringify(payload)}</script>`
 
     return c.html(
       page.replace('<!--ssr-outlet-->', () => html).replace('<!--app-data-->', () => dataScript),
+      status,
     )
   } catch (e) {
     const err = e as Error
     vite.ssrFixStacktrace(err)
     console.error(err)
-    return c.text(err.message, 500)
+    return c.html(ERROR_PAGE, 503, { 'Retry-After': '30' })
   }
 })
 

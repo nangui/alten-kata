@@ -6,9 +6,12 @@ describe('parsePage', () => {
     expect(parsePage('3')).toBe(3)
   })
 
-  it.each([null, '', '0', '-2', '1.5', 'abc'])('falls back to page 1 for %j', (value) => {
-    expect(parsePage(value)).toBe(1)
-  })
+  it.each([null, '', '0', '-2', '1.5', 'abc', '0x10', '1e1', ' 3 ', '10000'])(
+    'falls back to page 1 for %j',
+    (value) => {
+      expect(parsePage(value)).toBe(1)
+    },
+  )
 })
 
 describe('pageCount', () => {

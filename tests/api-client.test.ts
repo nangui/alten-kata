@@ -26,4 +26,13 @@ describe('fetchProducts', () => {
 
     await expect(fetchProducts()).rejects.toThrow('503')
   })
+
+  it('aborts the request when DummyJSON does not answer in time', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(Response.json(emptyPage))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await fetchProducts()
+
+    expect(fetchMock.mock.calls[0][1].signal).toBeInstanceOf(AbortSignal)
+  })
 })

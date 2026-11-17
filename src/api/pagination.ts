@@ -1,8 +1,9 @@
 import { PAGE_SIZE } from './client'
 
+const PAGE_PATTERN = /^[1-9]\d{0,3}$/
+
 export function parsePage(value: string | null): number {
-  const page = Number(value)
-  return Number.isInteger(page) && page >= 1 ? page : 1
+  return value !== null && PAGE_PATTERN.test(value) ? Number(value) : 1
 }
 
 export function pageCount(total: number): number {
