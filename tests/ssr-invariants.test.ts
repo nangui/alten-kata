@@ -1,9 +1,22 @@
-import { describe, it, expect } from 'vitest'
+import { afterEach, describe, it, expect, vi } from 'vitest'
 import { createApp } from '../src/main'
 import { render } from '../src/entry-server'
 import { useCounterStore } from '../src/stores/counter'
 
+const productPage = {
+  products: [
+    { id: 1, title: 'Essence Mascara', price: 9.99, rating: 2.56, thumbnail: 'https://cdn.example/1.webp', category: 'beauty' },
+  ],
+  total: 194,
+  skip: 0,
+  limit: 30,
+}
+
 describe('SSR invariants', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
   it('createApp() returns a fresh Pinia on every call', () => {
     const a = createApp()
     const b = createApp()
@@ -15,11 +28,13 @@ describe('SSR invariants', () => {
   })
 
   it('render() returns the HTML and a { data, state } payload', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json(productPage)))
+
     const { html, payload } = await render('/')
 
     expect(html).toContain('Clics : 10')
-    expect(payload.data).toEqual({})
+    expect(html).toContain('Essence Mascara — 9.99 $')
+    expect(payload.data).toEqual({ productPage })
     expect(payload.state.counter).toEqual({ count: 10 })
   })
 })
-
