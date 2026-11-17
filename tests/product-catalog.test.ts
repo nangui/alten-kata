@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { clearPublicCache } from '../src/api/client'
 import { useProductCatalog } from '../src/composables/useProductCatalog'
 import type { ProductPage } from '../src/api/types'
 
@@ -12,6 +13,10 @@ function pageOf(id: number): ProductPage {
 }
 
 describe('useProductCatalog', () => {
+  beforeEach(() => {
+    clearPublicCache()
+  })
+
   afterEach(() => {
     vi.unstubAllGlobals()
   })

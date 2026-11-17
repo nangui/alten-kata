@@ -1,4 +1,5 @@
-import { afterEach, describe, it, expect, vi } from 'vitest'
+import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest'
+import { clearPublicCache } from '../src/api/client'
 import { createApp } from '../src/main'
 import { render } from '../src/entry-server'
 import { useCartStore } from '../src/stores/cart'
@@ -20,6 +21,10 @@ const productPage = {
 }
 
 describe('SSR invariants', () => {
+  beforeEach(() => {
+    clearPublicCache()
+  })
+
   afterEach(() => {
     vi.unstubAllGlobals()
   })
@@ -78,5 +83,16 @@ describe('SSR invariants', () => {
       ],
       status: 'idle',
     })
+  })
+
+  it('serves the same catalogue page to a second visitor from the shared cache', async () => {
+    const fetchMock = vi.fn(async () => Response.json(productPage))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await render('/', '12:1')
+    const { payload } = await render('/')
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(payload.state.cart).toEqual({ lines: [], status: 'idle' })
   })
 })

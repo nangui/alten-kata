@@ -37,6 +37,7 @@
 ## 4. SSR invariants (non-negotiable)
 
 1. `createApp()` is a **factory**, never an exported value. No `createApp`, `createPinia`, `ref` or `Map` at module level: the Node process is shared, and module state leaks between requests (between users).
+   - **Single deliberate exception:** the TTL cache in `src/api/client.ts` (`publicCache`) is module-level and shared by every request, because it holds **public catalogue data only**. Never put cart or any other per-user data in it.
 2. `createSSRApp` on **both** server and client.
 3. State goes through `<script type="application/json">`, serialized with `devalue` (never `JSON.stringify`, never `window.__DATA__`).
 4. The cart lives in a **cookie**, never in `localStorage`.

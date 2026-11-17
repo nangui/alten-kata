@@ -1,9 +1,13 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fetchCartProducts, fetchProducts, PAGE_SIZE } from '../src/api/client'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { clearPublicCache, fetchCartProducts, fetchProducts, PAGE_SIZE } from '../src/api/client'
 
 const emptyPage = { products: [], total: 194, skip: 0, limit: PAGE_SIZE }
 
 describe('fetchProducts', () => {
+  beforeEach(() => {
+    clearPublicCache()
+  })
+
   afterEach(() => {
     vi.unstubAllGlobals()
   })
