@@ -1,7 +1,8 @@
 {
-  "name": "ssr-spike",
+  "name": "kata-eshop-ssr",
+  "private": true,
   "version": "1.0.0",
-  "description": "",
+  "description": "Hand-wired Vue 3 SSR product gallery and cart (Vite SSR API + Hono, no meta-framework)",
   "type": "module",
   "scripts": {
     "dev": "node server.ts",
@@ -15,9 +16,9 @@
     "format:check": "prettier --check .",
     "verify": "pnpm format:check && pnpm build && pnpm typecheck && pnpm lint && pnpm test"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "engines": {
+    "node": ">=23.6"
+  },
   "packageManager": "pnpm@10.30.0",
   "dependencies": {
     "@hono/node-server": "^2.1.6",
